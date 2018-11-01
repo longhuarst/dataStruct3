@@ -157,8 +157,6 @@ void postOrderNonRecursive(BinaryTree p)
 		}
 		
 	}
-	
-
 }
 
 
