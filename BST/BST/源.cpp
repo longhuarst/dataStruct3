@@ -110,6 +110,9 @@ void levelOrder(BinaryTree root)
 BinaryTree root = NULL;
 
 
+BinaryTree root2 = NULL;
+
+
 
 
 BinaryTree Search(BinaryTree root,int data)
@@ -131,13 +134,14 @@ BinaryTree Search(BinaryTree root,int data)
 
 
 
-void Insert(BinaryTree &root, int data)
+bool Insert(BinaryTree &root, int data)
 {
 	if (!root) {
 		root = new BinaryTreeNode;
 		root->data = data;
 		root->left = NULL;
 		root->right = NULL;
+		return true;
 	}
 	else {
 		if (data < root->data) {
@@ -148,10 +152,90 @@ void Insert(BinaryTree &root, int data)
 		}
 		else {
 			cout << "插入了重复的元素！" << endl;
+			return false;
 		}
 	}
-
 }
+
+void CreateBST(BinaryTree &root,int size)
+{
+	for (int i = 0; i < size; ) {
+		if (Insert(root, rand() % 100)) {
+			++i;
+		}
+	}
+}
+
+
+void inOrder(BinaryTree root)
+{
+	if (root) {
+		inOrder(root->left);
+		visit(root);
+		inOrder(root->right);
+	}
+}
+
+
+
+int findmin(BinaryTree root)
+{
+	if (root == NULL)
+		return 0;
+	while (root->left != NULL) root = root->left;
+
+	return root->data;
+}
+
+bool Delete(BinaryTree &root, int data)
+{
+	if (root == NULL) {
+		cout << "元素不存在，删除失败！" << endl;
+		return false;
+	}
+
+	if (data < root->data) {
+		return Delete(root->left,data);
+	}
+	else if (data > root->data) {
+		return Delete(root->right, data);
+	}
+	else {
+		//找到了节点
+		if (root->right == NULL && root->left == NULL) {
+			delete(root);
+			root = NULL;
+		}
+		else if (root->right != NULL ) {
+			root->data = findmin(root->right);
+			Delete(root->right, root->data);
+		}
+		else if (root->left != NULL && root->right == NULL){
+			BinaryTree pChild = root->left;
+			delete(root);
+			root = pChild;
+		}
+	}
+}
+
+
+
+
+
+int inOrderFindHasLeftHasNonRigth(BinaryTree root)
+{
+	if (root) {
+		inOrder(root->left);
+		//visit(root);
+		if (root->left && root->right == NULL) {
+			return root->data;
+		}
+		inOrder(root->right);
+	}
+
+	return -1;
+}
+
 
 int main() 
 {
@@ -188,6 +272,63 @@ int main()
 
 	
 	levelOrder(root);
+
+	//创建BST
+	cout << "创建BST 采用插入方法" << endl;
+	CreateBST(root2,25);
+
+	cout << "层次遍历" << endl;
+	levelOrder(root2);
+
+
+	cout << "中序遍历 BST 得到 排序序列" << endl;
+
+
+	
+	inOrder(root2);
+
+
+	cout << "删除BST中的几个特殊点" << endl;
+
+
+	cout << "删除根结点:=" << root2->data << endl;
+
+	Delete(root2, root2->data);
+
+	cout << "二叉搜索数 中序遍历" << endl;
+
+	inOrder(root2);
+
+	cout << endl;
+
+	cout << "删除最小:=" << findmin(root2) << endl;
+
+	Delete(root2, findmin(root2));
+
+	cout << "二叉搜索数 中序遍历" << endl;
+
+	inOrder(root2);
+
+
+	int data;
+
+
+	do 
+	{
+		data = inOrderFindHasLeftHasNonRigth(root2);
+	} while (data == -1);
+	
+
+	cout << "满足有左孩子 没有孩子的节点值为 ：" << data << endl;
+
+	cout << "删除该点值：" << data << endl;
+
+	Delete(root2, data);
+
+	cout << "二叉搜索数 中序遍历" << endl;
+
+	inOrder(root2);
+
 
 
 
