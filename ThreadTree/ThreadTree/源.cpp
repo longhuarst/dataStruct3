@@ -10,6 +10,7 @@ typedef struct ThreadTreeNode{
 
 	ThreadTreeNode *l_child, *r_child;
 	int l_tag, r_tag;
+	ThreadTreeNode *parent;
 }ThreadTreeNode, *ThreadTree;
 
 
@@ -91,6 +92,154 @@ void InOrder(ThreadTree p)
 		InOrder(p->r_child);
 	}
 }
+
+
+
+void PreThread(ThreadTree &p, ThreadTree &prev)
+{
+	if (p) {
+
+
+		if (p->l_child == NULL) {
+			p->l_child = prev;
+			p->l_tag = 1;
+		}
+		if (prev != NULL && prev->r_child == NULL) {
+			prev->r_child = p;
+			prev->r_tag = 1;
+		}
+		prev = p;
+		if (p->l_tag == 0) PreThread(p->l_child,prev);
+		if (p->r_tag == 0) PreThread(p->r_child,prev);
+	}
+}
+
+
+void PreThreadCreate(ThreadTree &p)
+{
+	ThreadTree prev = NULL;
+
+	if (p) {
+		PreThread(p, prev);
+		prev->r_child = NULL;
+		prev->r_tag = 1;
+	}
+}
+
+
+
+
+void ThreadPreOrder(ThreadTree p)
+{
+	
+	while (p) {
+		
+		visit(p);
+
+		if (p->l_tag == 0)
+			p = p->l_child;
+		else
+			p = p->r_child;
+	}
+}
+
+void PreOrder(ThreadTree p) 
+{
+	if (p) {
+		visit(p);
+		PreOrder(p->l_child);
+		PreOrder(p->r_child);
+	}
+}
+
+
+
+
+
+void PostThread(ThreadTree &p, ThreadTree &prev, ThreadTree parent)
+{
+	if (p) {
+		p->parent = parent;
+		PostThread(p->l_child,prev, p);
+		PostThread(p->r_child,prev, p);
+		if (p->l_child == NULL) {
+			p->l_child = prev;
+			p->l_tag = 1;
+		}
+		if (prev != NULL && prev->r_child == NULL) {
+			prev->r_child = p;
+			prev->r_tag = 1;
+		}
+		prev = p;
+	}
+}
+
+
+void PostThreadCreate(ThreadTree &p)
+{
+	ThreadTree prev = NULL;
+	if (p) {
+		PostThread(p, prev, NULL);
+	}
+}
+
+
+
+
+
+
+//后序遍历
+void ThreadPostOrder(ThreadTree p, ThreadTree prev)
+{
+	
+	while (1) {
+		if (!p)
+			return;
+
+		if (p->l_child != prev && p->r_child != prev) {
+				while (p->l_tag != 1) p = p->l_child;
+		}
+		visit(p);
+		
+		if (p->r_child != prev) {
+			prev = p;
+			p = p->r_child;
+		}
+		else {
+			prev = p;
+			if (p->parent == NULL)
+				return;
+			if (p == p->parent->l_child) {
+				p = p->parent->r_child;
+			}else
+			p = p->parent;
+		}
+	}	
+}
+
+
+
+
+
+
+
+
+
+
+
+void PostOrder(ThreadTree p)
+{
+	if (p) {
+		PostOrder(p->l_child);
+		PostOrder(p->r_child);
+		visit(p);
+	}
+}
+
+
+
+
+
 
 
 
@@ -188,8 +337,8 @@ void levelOrder(ThreadTree p)
 
 
 ThreadTree root = NULL; 
-
-
+ThreadTree root2 = NULL;
+ThreadTree root3 = NULL;
 
 
 
@@ -223,6 +372,83 @@ int main()
 	
 
 		
+
+	cout << "==============================" << endl;
+
+
+
+
+
+	cout << "创建树" << endl;
+	CreateTree(root2, 25);
+
+	cout << "层次遍历 ";
+	levelOrder(root2);
+	cout << endl;
+
+	cout << "先序遍历" << endl;
+	PreOrder(root2);
+	cout << endl;
+
+
+
+
+
+	cout << "创建二叉线索树 - 中序" << endl;
+	PreThreadCreate(root2);
+
+	cout << "线索中序遍历" << endl;
+	ThreadPreOrder(root2);
+	cout << endl;
+
+
+
+
+
+
+
+
+	cout << "==============================" << endl;
+
+
+
+
+
+	cout << "创建树" << endl;
+	CreateTree(root3, 25);
+
+	cout << "层次遍历 ";
+	levelOrder(root3);
+	cout << endl;
+
+	cout << "先序遍历" << endl;
+	PostOrder(root3);
+	cout << endl;
+
+
+
+
+
+	cout << "创建二叉线索树 - 后序" << endl;
+	PostThreadCreate(root3);
+
+	cout << "线索后序遍历" << endl;
+	ThreadPostOrder(root3,NULL);
+	cout << endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
