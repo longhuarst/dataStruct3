@@ -111,7 +111,6 @@ bool Insert(AST &root, int data)
 
 void CreateAST(AST &root, int size)
 {
-
 	for (int i = 0; i < size;) {
 		int value = rand() % 100;
 		cout << value << " ";
@@ -120,7 +119,6 @@ void CreateAST(AST &root, int size)
 			++i;
 		}
 	}
-
 }
 
 
@@ -135,6 +133,98 @@ void inOrder(AST root)
 		inOrder(root->left);
 		visit(root);
 		inOrder(root->right);
+	}
+}
+
+
+AST find(AST root, int value)
+{
+	if (root == NULL) {
+		cout << "没找到" << endl;
+		return NULL;
+	}
+	if (value < root->data) {
+		return find(root->left, value);
+	}
+	else if (value > root->data) {
+		return find(root->right, value);
+	}
+	else {
+		return root;
+	}
+}
+
+
+int findmin(AST root) 
+{
+	while (root->left) {
+		root = root->left;
+	}
+	return root->data;
+}
+
+
+bool Delete(AST &root, int value)
+{
+	if (root == NULL) {
+		cout << "没找到，无法删除" << endl;
+		return false;
+	}
+	if (value < root->data) {
+		bool res = Delete(root->left, value);
+		if (abs(Height(root->left) - Height(root->right)) >= 2) {
+			//树不平衡
+			if (Height(root->right->left) < Height(root->right->right)) {
+				SingleRotateLeft(root);
+			}
+			else {
+				DoubleRotateRightLeft(root);
+			}
+		}
+		root->height = max(root->left->height, root->right->height) + 1;
+		return res;
+	}
+	else if (value > root->data) {
+		bool res = Delete(root->right, value);
+		if (abs(Height(root->left) - Height(root->right)) >= 2) {
+			//树不平衡
+			if (Height(root->left->left) > Height(root->left->right)) {
+				SingleRotateRight(root);
+			}
+			else {
+				DoubleRotateLeftRight(root);
+			}
+		}
+		root->height = max(root->left->height, root->right->height) + 1;
+		return res;
+	}
+	else {
+		//匹配到了数据
+		if (root->left == NULL && root->right == NULL) {
+			delete(root);
+			root = NULL;
+			return true;
+		}
+		else if (root->left != NULL && root->right != NULL) {
+			bool res;
+			int value = findmin(root->right);
+			root->data = value;
+			Delete(root->right, value);
+			root->height = max(root->left->height, root->right->height) + 1;
+			return true;
+		}
+		else if (root->left){
+			AST p = root->left;
+			delete(root);
+			root = p;
+			return true;
+		}
+		else {
+			AST p = root->right;
+			delete(root);
+			root = p;
+			return true;
+		}
 	}
 }
 
@@ -160,10 +250,22 @@ int main()
 	cout << endl;
 
 
+	find(root, 0);
 
 
 
+	inOrder(root);
+	Delete(root,0);
+	cout << "中序遍历 " << endl;
+	inOrder(root);
 
+
+
+	Delete(root, 4);
+	cout << "中序遍历 " << endl;
+
+
+	inOrder(root);
 
 	system("pause");
 }
