@@ -43,7 +43,7 @@ void SingleRotateLeft(AST &root)
 	root->left = p;
 
 	p->height = max(Height(p->left), Height(p->right)) + 1;
-	root->height = max(Height(p->left), Height(p->right)) + 1;
+	root->height = max(Height(root->left), Height(root->right)) + 1;
 }
 
 
@@ -113,7 +113,10 @@ void CreateAST(AST &root, int size)
 {
 
 	for (int i = 0; i < size;) {
-		if (Insert(root, rand() % 100)) {
+		int value = rand() % 100;
+		cout << value << " ";
+		if (Insert(root, value)) {
+			
 			++i;
 		}
 	}
